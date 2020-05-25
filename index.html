@@ -21,7 +21,7 @@
     <div class="accordion" id="accordionProgression">
       <div class="card">
         <div class="card-header" id="heading_1">
-            1. Chargement du fichier xml à modifier
+          1. Chargement du fichier xml à modifier
         </div>
         <div id="collapse_1" class="collapse show" aria-labelledby="heading_1" data-parent="#accordionProgression">
           <div class="card-body">
@@ -36,31 +36,41 @@
 
         <div class="card">
           <div class="card-header text-secondary" id="heading_2">
-              2. Chargement de la liste des modifications à effectuer
+            2. Chargement de la liste des modifications à effectuer
           </div>
           <div id="collapse_2" class="collapse" aria-labelledby="heading_2" data-parent="#accordionProgression">
             <div class="card-body">
-              <div class="input-group">
+              <div class="input-group" style="margin-bottom: 1em;">
                 <div class="custom-file">
                   <input type="file" class="custom-file-input" id="rulesFileSelector">
                   <label class="custom-file-label" for="rulesFileSelector">Fichier csv listant les renommages</label>
                 </div>
               </div>
+              <p class="card-text">
+                Ce fichier .csv doit contenir une demande de modification par ligne sous la forme : <br>
+                <code>GUID, Ancien nom, Nouveau nom</code>
+              </p>
             </div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header text-secondary" id="heading_3">
-              3. Validation des modifications à effectuer
+            3. Validation des modifications à effectuer
           </div>
           <div id="collapse_3" class="collapse" aria-labelledby="heading_3" data-parent="#accordionProgression">
             <div class="card-body">
-              <span class="badge badge-primary" id="renameActionsNumberInfo"></span>
-              <div class="float-right" style="margin-bottom: 1em;">
-                <button type="button" class="btn btn-primary" disabled>Appliquer</button>
-                <button type="button" class="btn btn-success" disabled>Sauvegarder</button>
-                </div>
+              <div id="actionsResultContainer">
+                <span class="badge badge-primary" id="renameActionsNumberInfo"></span>
+              </div>
+              <div class="float-right" style="margin-bottom: 1em;" id="actionButtons">
+                <button type="button" class="btn btn-primary" id="applyRenameActionsButton" disabled>
+                  Appliquer
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+
               <table class="table table-sm" id="renameActionsTable">
                 <thead>
                   <tr>
@@ -71,7 +81,7 @@
                     <th scope="col">Status</th>
                   </tr>
                 </thead>
-                <tbody> 
+                <tbody>
                 </tbody>
               </table>
             </div>
