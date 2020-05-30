@@ -9,6 +9,13 @@
  * Copyright (c) 2020 Benoit Bataille
  *
 
+
+/* Global variables */
+
+var xmlDoc; // the processed XML Document
+var renameActionsArray; // An array containing the renaming to do
+var saveFileName = ""; // The name of the resulting file
+
 /* DOM Manipulation */
 
 /**
@@ -152,7 +159,7 @@ function createCounterBadge(badgeType, count, text_singular, text_plural) {
 function addResultCounterBadges(resultCounter) {
     if (resultCounter.success >= 1) {
         var successSpan = createCounterBadge(
-            "badge-success", 
+            "badge-success",
             resultCounter.success,
             "modication réalisée avec succès",
             "modifications réalisées avec succès"
@@ -273,7 +280,7 @@ function makeRenameAction(xmlDoc, resultCounter) {
             while (libelleElem != null && libelleElem.nodeName != "libelle") {
                 libelleElem = libelleElem.nextSibling;
             }
-            
+
             // If not found, mark as failure
             if (libelleElem == null) {
                 markRowAsFailure(actionIndex);
@@ -317,6 +324,44 @@ function enableSave(xmlTxtContent, saveFileName) {
     document.getElementById("actionButtons").appendChild(saveLink);
 }
 
+/* Callbacks */
+function xmlFileSelectorCallback(xmlFileEvent) {
+    let reader = new FileReader();
+    let toModifyFile = xmlFileEvent.target.files[0];
+    reader.readAsText(toModifyFile);
+
+    reader.onload = function () {
+        var xmlDoc = parseXML(reader.result);
+        saveFileName = "renomme_" + toModifyFile.name;
+        progressToStep2(toModifyFile.name);
+    }
+}
+
+function csvFileSelectorCallback(csvFileEvent) {
+    let reader = new FileReader();
+    let csvFile = csvFileEvent.target.files[0];
+    reader.readAsText(csvFile);
+
+    reader.onload = function () {
+        renameActionsArray = $.csv.toArrays(reader.result, { separator: ";" });
+        progressToStep3(csvFile.name, renameActionsArray);
+    }
+}
+
+function applyRenameButtonCallback(applyEvent) {
+    var resultCounter = {
+        success: 0,
+        warning: 0,
+        failure: 0
+    };
+
+    renameActionsArray.forEach(makeRenameAction(xmlDoc, resultCounter));
+
+    addResultCounterBadges(resultCounter);
+    removeApplyButton();
+    enableSave(serializeXML(xmlDoc), saveFileName);
+}
+
 /* Main logic */
 
 function main() {
@@ -327,53 +372,13 @@ function main() {
 
     // Attach file selector callbacks
     document.getElementById('toModifyFileSelector').addEventListener(
-        'change',
-        (xmlEvent) => {
-            let reader = new FileReader();
-            let toModifyFile = xmlEvent.target.files[0];
-            reader.readAsText(toModifyFile);
+        'change', xmlFileSelectorCallback);
+    document.getElementById('rulesFileSelector').addEventListener(
+        'change', csvFileSelectorCallback);
 
-            reader.onload = function () {
-                var xmlDoc = parseXML(reader.result);
-
-                progressToStep2(toModifyFile.name);
-
-                document.getElementById('rulesFileSelector').addEventListener(
-                    'change',
-                    (csvEvent) => {
-                        let reader = new FileReader();
-                        reader.readAsText(csvEvent.target.files[0]);
-
-                        reader.onload = function () {
-                            renameActionsArray =
-                                $.csv.toArrays(reader.result);
-                            progressToStep3(
-                                csvEvent.target.files[0].name,
-                                renameActionsArray);
-
-                            // Set Apply button onClick action
-                            document.getElementById("applyRenameActionsButton")
-                                .addEventListener(
-                                    'click',
-                                    (applyEvent) => {
-                                        var resultCounter = {
-                                            success: 0,
-                                            warning: 0,
-                                            failure: 0
-                                        };
-                                        renameActionsArray.forEach(
-                                            makeRenameAction(xmlDoc, resultCounter)
-                                        );
-                                        addResultCounterBadges(resultCounter);
-                                        removeApplyButton();
-                                        enableSave(
-                                            serializeXML(xmlDoc),
-                                            "renomme_" + toModifyFile.name);
-                                    });
-                        };
-                    });
-            }
-        });
+    // Set Apply button onClick action
+    document.getElementById("applyRenameActionsButton").addEventListener(
+        'click', applyRenameButtonCallback);
 }
 
 main();
