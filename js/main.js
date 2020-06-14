@@ -5,11 +5,6 @@
  * @version 1.0.0
  */
 
-/*
- * Copyright (c) 2020 Benoit Bataille
- *
-
-
 /* Global variables */
 
 var xmlDoc; // the processed XML Document
@@ -343,7 +338,7 @@ function csvFileSelectorCallback(csvFileEvent) {
     reader.readAsText(csvFile);
 
     reader.onload = function () {
-        renameActionsArray = $.csv.toArrays(reader.result, { separator: ";" });
+        renameActionsArray = $.csv.toArrays(reader.result, { separator: "," });
         progressToStep3(csvFile.name, renameActionsArray);
     }
 }
